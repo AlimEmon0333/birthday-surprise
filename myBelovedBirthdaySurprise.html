@@ -1,0 +1,572 @@
+<!--
+Filename: index.html
+What this is: A single-file, modern birthday webpage designed to impress your crush.
+How to use:
+ 1. Save this entire content to a file named `index.html`.
+ 2. Open it in a browser (double-click or drag into the browser).
+ 3. To personalize, edit the JS variables near the top of <script>:
+      - crushName  (the name of your crush)
+      - yourName   (your name shown on the card)
+      - photoURL   (link to her photo or a placeholder image)
+      - musicURL   (link to an MP3 file; optional)
+ 4. If you want me to personalize it now, send me her name and a photo/link and I'll update it for you.
+
+Notes: This file uses only HTML/CSS/JS and works offline (except for Google Fonts). There's a small confetti animation, typewriter message, floating hearts, and a "Play Happy Birthday" audio control. Customize the text inside <main> if you like.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Happy Birthday</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;600;800&family=Great+Vibes&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0f1724;
+        --card: #0b1220;
+        --accent: #ff6b81;
+        --muted: #9aa7bf;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        font-family: Montserrat, system-ui, Segoe UI, Roboto, Helvetica, Arial,
+          sans-serif;
+        background: linear-gradient(180deg, #001219 0%, #04202b 60%),
+          radial-gradient(
+            circle at 10% 10%,
+            rgba(255, 107, 129, 0.06),
+            transparent 8%
+          );
+        color: #e6f0ff;
+      }
+      .wrap {
+        min-height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 36px;
+      }
+      .card {
+        width: 980px;
+        max-width: 96%;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.03),
+          rgba(0, 0, 0, 0.06)
+        );
+        border-radius: 18px;
+        padding: 28px;
+        box-shadow: 0 12px 40px rgba(2, 6, 23, 0.6);
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.03);
+      }
+
+      /* Header */
+      .top {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+      }
+      .avatar {
+        width: 140px;
+        height: 240px;
+        border-radius: 16px;
+        overflow: hidden;
+        flex: 0 0 140px;
+        background: linear-gradient(135deg, #1f2937, #0b1220);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .meta {
+        flex: 1;
+      }
+      .meta h1 {
+        font-family: Great Vibes, cursive;
+        font-size: 48px;
+        margin: 0 0 6px 0;
+        letter-spacing: 0.6px;
+        color: var(--accent);
+        text-shadow: 0 6px 18px rgba(255, 107, 129, 0.12);
+      }
+      .meta p {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      /* Message */
+      .message {
+        margin-top: 18px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.01),
+          rgba(255, 255, 255, 0.02)
+        );
+        padding: 18px;
+        border-radius: 12px;
+      }
+      .greeting {
+        font-size: 20px;
+        margin: 0 0 8px 0;
+      }
+      .typed {
+        font-weight: 600;
+        font-size: 16px;
+        color: #fff;
+      }
+
+      /* Controls */
+      .controls {
+        display: flex;
+        gap: 12px;
+        margin-top: 16px;
+      }
+      .btn {
+        background: linear-gradient(90deg, var(--accent), #ff8aa6);
+        border: none;
+        padding: 10px 14px;
+        border-radius: 10px;
+        color: white;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 6px 18px rgba(255, 107, 129, 0.14);
+      }
+      .btn.ghost {
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        box-shadow: none;
+        color: var(--muted);
+      }
+
+      /* Floating hearts */
+      .hearts {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        pointer-events: none;
+      }
+      .heart {
+        position: absolute;
+        width: 36px;
+        height: 36px;
+        transform-origin: center;
+        opacity: 0;
+      }
+
+      /* Footer note */
+      .footer {
+        margin-top: 18px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      /* Responsive */
+      @media (max-width: 640px) {
+        .top {
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+        }
+        .avatar {
+          width: 120px;
+          height: 120px;
+        }
+        .meta h1 {
+          font-size: 36px;
+        }
+      }
+
+      /* Typewriter caret */
+      .caret {
+        display: inline-block;
+        width: 2px;
+        height: 18px;
+        background: #fff;
+        vertical-align: middle;
+        margin-left: 7px;
+        animation: blink 1s steps(2) infinite;
+      }
+      @keyframes blink {
+        50% {
+          opacity: 0;
+        }
+      }
+
+      /* small celebratory badge */
+      .badge {
+        position: absolute;
+        top: 18px;
+        right: 18px;
+        background: linear-gradient(90deg, #ffd166, #ff6b6b);
+        padding: 10px 14px;
+        border-radius: 999px;
+        font-weight: 800;
+        color: #072227;
+        transform: rotate(-6deg);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+      }
+
+      /* subtle spotlight */
+      .spot {
+        position: absolute;
+        left: -20%;
+        top: -30%;
+        width: 60%;
+        height: 60%;
+        filter: blur(90px);
+        background: radial-gradient(
+          closest-side,
+          rgba(255, 107, 129, 0.12),
+          transparent
+        );
+      }
+
+      /* small card for note */
+      .note-card {
+        margin-top: 18px;
+        padding: 14px;
+        border-radius: 10px;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.02),
+          rgba(0, 0, 0, 0.03)
+        );
+        border: 1px solid rgba(255, 255, 255, 0.02);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="card" id="card">
+        <div class="spot"></div>
+        <div class="badge">My Jaan 💗😘</div>
+        <div class="top">
+          <div class="avatar" id="avatar">
+            <img
+              src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=800&auto=format&fit=crop&crop=faces"
+              alt="photo"
+              id="avatarImg"
+            />
+          </div>
+          <div class="meta">
+            <h1 id="headline">
+              Happy Birthday, <span id="crushName">Someone</span>
+            </h1>
+            <p id="subline">
+              A small surprise made with care & love — just for you.
+            </p>
+            <div class="message">
+              <p class="greeting" id="greeting">
+                Hey <strong id="greetName">there</strong> —
+              </p>
+              <p class="typed" id="typed"></p>
+              <span class="caret" aria-hidden="true"></span>
+
+              <div class="controls">
+                <button class="btn" id="playBtn">Play Birthday Song</button>
+                <button class="btn ghost" id="openBtn">
+                  Open Your Surprise
+                </button>
+              </div>
+
+              <div class="note-card" id="noteCard" style="display: none">
+                <p style="margin: 0 0 6px 0">
+                  <strong>To <span id="noteName">You</span>,</strong>
+                </p>
+                <p style="margin: 0 0 8px 0">
+                  Wishing you a year full of smiles, growth and every little joy
+                  you deserve <em id="fromName">Someone special</em>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer">
+          Made with Love❤️ — Open the surprise and make a memory today.
+        </div>
+
+        <div class="hearts" id="hearts"></div>
+        <canvas
+          id="confettiCanvas"
+          style="
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+          "
+        ></canvas>
+
+        <!-- hidden audio -->
+        <audio id="bgAudio" loop></audio>
+      </div>
+    </div>
+
+    <script>
+      /***** Personalization variables - edit these *****/
+      const crushName = "My Ishu 😚❤️"; // change to your crush's name
+      const yourName = "— Yours Ali"; // change to your name as you'd like it to appear
+      const photoURL = "birthdayGirl.jpg"; // optional: put a direct image URL (jpg/png). Leave blank to keep placeholder.
+      const musicURL = "song.mp3"; // optional: direct .mp3 file URL to play. Leave blank to use default beep melody.
+      /***********************************************/
+
+      // apply personalization
+      document.getElementById("crushName").innerText = crushName;
+      document.getElementById("greetName").innerText = crushName;
+      document.getElementById("noteName").innerText = crushName;
+      document.getElementById("fromName").innerText = yourName;
+      if (photoURL && photoURL.trim() !== "")
+        document.getElementById("avatarImg").src = photoURL;
+
+      // typed message (typewriter)
+      const lines = [
+        `Wishing you the happiest birthday, ${crushName}.`,
+        `May your day be full of laughs, sweets, and everything you love.`,
+        `I made this little surprise to see you smile — hope it works.`,
+        `I pray that Allah blesses you with success in every moment of your life — and may He write both of us in each other’s destiny`,
+      ];
+
+      const typedEl = document.getElementById("typed");
+      let li = 0,
+        ci = 0,
+        forward = true;
+      function typeLoop() {
+        const line = lines[li];
+        if (forward) {
+          typedEl.textContent = line.slice(0, ci + 1);
+          ci++;
+          if (ci >= line.length) {
+            forward = false;
+            setTimeout(typeLoop, 1300);
+            return;
+          }
+        } else {
+          typedEl.textContent = line.slice(0, ci - 1);
+          ci--;
+          if (ci <= 0) {
+            forward = true;
+            li = (li + 1) % lines.length;
+            setTimeout(typeLoop, 600);
+            return;
+          }
+        }
+        setTimeout(typeLoop, forward ? 60 : 30);
+      }
+      setTimeout(typeLoop, 800);
+
+      // Open surprise (reveal note + confetti + hearts)
+      const openBtn = document.getElementById("openBtn");
+      const noteCard = document.getElementById("noteCard");
+      openBtn.addEventListener("click", () => {
+        noteCard.style.display = "block";
+        startConfetti();
+        spawnHearts(16);
+        // small pulse on headline
+        const h = document.getElementById("headline");
+        h.animate(
+          [
+            { transform: "scale(1)" },
+            { transform: "scale(1.04)" },
+            { transform: "scale(1)" },
+          ],
+          { duration: 900, iterations: 1 }
+        );
+      });
+
+      // Audio control
+      // Audio control (updated play/pause toggle)
+      const bgAudio = document.getElementById("bgAudio");
+      const playBtn = document.getElementById("playBtn");
+
+      if (musicURL && musicURL.trim() !== "") bgAudio.src = musicURL;
+      else bgAudio.src = "";
+
+      playBtn.addEventListener("click", async () => {
+        if (!bgAudio.src) {
+          // WebAudio melody fallback
+          playBtn.disabled = true;
+          playBtn.innerText = "Playing...";
+          await playTinyMelody();
+          playBtn.disabled = false;
+          playBtn.innerText = "Play Birthday Song";
+          return;
+        }
+
+        if (bgAudio.paused) {
+          try {
+            await bgAudio.play();
+            playBtn.innerText = "Pause Birthday Song";
+          } catch (e) {
+            alert("Your browser blocked autoplay — please tap the play icon.");
+          }
+        } else {
+          bgAudio.pause();
+          playBtn.innerText = "Play Birthday Song";
+        }
+      });
+
+      // Tiny WebAudio melody (fallback)
+      async function playTinyMelody() {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const notes = [440, 440, 523.25, 440, 659.25]; // short tune
+        let t = 0;
+        for (const n of notes) {
+          const o = ctx.createOscillator();
+          const g = ctx.createGain();
+          o.type = "sine";
+          o.frequency.value = n;
+          o.connect(g);
+          g.connect(ctx.destination);
+          g.gain.value = 0.0001;
+          g.gain.linearRampToValueAtTime(0.18, ctx.currentTime + 0.01);
+          o.start(ctx.currentTime + t);
+          o.stop(ctx.currentTime + t + 0.28);
+          t += 0.32;
+        }
+        return new Promise((res) => setTimeout(res, Math.ceil(t * 1000) + 150));
+      }
+
+      /* Confetti implementation - simple canvas confetti */
+      const canvas = document.getElementById("confettiCanvas");
+      const ctx = canvas.getContext("2d");
+      function resizeCanvas() {
+        canvas.width = canvas.clientWidth * devicePixelRatio;
+        canvas.height = canvas.clientHeight * devicePixelRatio;
+        ctx.scale(devicePixelRatio, devicePixelRatio);
+      }
+      resizeCanvas();
+      window.addEventListener("resize", () => {
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        resizeCanvas();
+      });
+
+      let confettiPieces = [];
+      function startConfetti() {
+        confettiPieces = [];
+        const colors = ["#FF6B81", "#FFD166", "#6BE4FF", "#B28DFF", "#FF9CCE"];
+        for (let i = 0; i < 120; i++) {
+          confettiPieces.push({
+            x: Math.random() * canvas.clientWidth,
+            y: -Math.random() * 200,
+            vy: 1 + Math.random() * 4,
+            ax: (Math.random() - 0.5) * 0.02,
+            angle: Math.random() * 360,
+            size: 6 + Math.random() * 8,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            spin: Math.random() * 0.2,
+          });
+        }
+        requestAnimationFrame(confettiLoop);
+        setTimeout(() => {
+          confettiPieces = [];
+          clearCanvas();
+        }, 6000);
+      }
+      function confettiLoop() {
+        clearCanvas();
+        for (const p of confettiPieces) {
+          p.vy += 0.04;
+          p.x += Math.sin(p.angle) * 0.6 + p.ax * 50;
+          p.y += p.vy;
+          p.angle += p.spin;
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.angle * 0.03);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+          ctx.restore();
+        }
+        confettiPieces = confettiPieces.filter(
+          (p) => p.y < canvas.clientHeight + 40
+        );
+        if (confettiPieces.length > 0) requestAnimationFrame(confettiLoop);
+      }
+      function clearCanvas() {
+        ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+      }
+
+      /* Floating hearts */
+      const heartsContainer = document.getElementById("hearts");
+      function spawnHearts(count = 8) {
+        for (let i = 0; i < count; i++) {
+          const el = document.createElement("div");
+          el.className = "heart";
+          const size = 28 + Math.floor(Math.random() * 36);
+          el.style.width = size + "px";
+          el.style.height = size + "px";
+          el.style.left = 10 + Math.random() * 80 + "%";
+          el.style.top = 40 + Math.random() * 20 + "%";
+          el.style.opacity = 0;
+          el.style.transform = "translateY(0) scale(0.8)";
+          el.innerHTML = `<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 21s-7-4.35-9-7a5 5 0 0 1 0-6 5 5 0 0 1 7-1 5 5 0 0 1 7 1 5 5 0 0 1 0 6c-2 2.65-9 7-9 7z" fill="url(#g)" stroke="rgba(255,255,255,0.06)"/></svg>`;
+          heartsContainer.appendChild(el);
+          // animation
+          const delay = Math.random() * 600;
+          setTimeout(() => {
+            el.animate(
+              [
+                { transform: "translateY(0) scale(0.8)", opacity: 0 },
+                { transform: "translateY(-140px) scale(1)", opacity: 1 },
+                { transform: "translateY(-260px) scale(1.05)", opacity: 0 },
+              ],
+              {
+                duration: 2200 + Math.random() * 1500,
+                easing: "cubic-bezier(.2,.7,.2,1)",
+              }
+            );
+            setTimeout(() => {
+              el.remove();
+            }, 3800);
+          }, delay);
+        }
+      }
+
+      // initial small heart burst
+      setTimeout(() => spawnHearts(6), 1300);
+
+      // small accessibility: keyboard Enter to open surprise
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") openBtn.click();
+      });
+
+      // optional: let user click the card to copy share text
+      document.getElementById("card").addEventListener("dblclick", copyShare);
+
+      // small safety: if image fails, fallback to placeholder
+      document.getElementById("avatarImg").addEventListener("error", () => {
+        document.getElementById("avatarImg").src =
+          "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=800&auto=format&fit=crop&crop=faces";
+      });
+
+      // Done: when page loaded — small entrance animation
+      window.addEventListener("load", () => {
+        document.getElementById("card").animate(
+          [
+            { opacity: 0, transform: "translateY(8px)" },
+            { opacity: 1, transform: "translateY(0)" },
+          ],
+          { duration: 700, easing: "cubic-bezier(.2,.8,.2,1)" }
+        );
+      });
+    </script>
+  </body>
+</html>
